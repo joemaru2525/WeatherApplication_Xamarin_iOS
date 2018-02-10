@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Drawing;
+using CoreGraphics;
 using Foundation;
 using HtmlAgilityPack;
 using UIKit;
@@ -16,17 +16,6 @@ namespace YahooWeather_iOS
 
         partial void TappedStart(UIButton sender)
         {
-            this.labelTitle.Text = "Yahoo! お天気";
-            this.labelAnnounce.Text = "発表日時：2018年2月10日 12時";
-            this.labelDate.Text = "日付け：2018年2月10日";
-            this.labelWeather.Text = "天気：晴れ後曇り";
-            this.labelTempHigh.Text = "最高気温：10℃";
-            this.labelTempLow.Text = "最低気温：5℃";
-
-            this.labelPrecip01.Text = "0%";
-            this.labelPrecip02.Text = "5%";
-            this.labelPrecip03.Text = "50%";
-            this.labelPrecip04.Text = "100%";
 
             //(1)指定したサイトのHTMLをストリームで取得する
             const string url = "https://weather.yahoo.co.jp/weather/jp/14/4610.html";
@@ -49,8 +38,10 @@ namespace YahooWeather_iOS
             this.labelTitle.Text = node0[0].InnerText;
 
             //Anounce Date & Time（発表日時）
-            HtmlNodeCollection node1 =
+            HtmlNodeCollection node1 = 
             doc.DocumentNode.SelectNodes("//div[@class='yjw_title_h2 yjw_clr']//p[@class='yjSt yjw_note_h2']");
+            //item/title[contains(.,'Windows')]
+            //doc.DocumentNode.SelectNodes("//div[@class='yjw_title_h2 yjw_clr']//p[@class='yjSt yjw_note_h2']");
             this.labelAnnounce.Text = node1[0].InnerText;    //node1(0).InnerText
 
             //WeatherDate（対象日）
@@ -88,10 +79,14 @@ namespace YahooWeather_iOS
             this.labelPrecip04.Text = node6[3].InnerText;
 
             //WeatherPicture（天気画像）
-            HtmlNodeCollection node7 =
-            doc.DocumentNode.SelectNodes("//div[@class='forecastCity']//p[@class='pict']//img");
+            HtmlNodeCollection node7 =doc.DocumentNode.SelectNodes("//div[@class='forecastCity']//p[@class='pict']//img");
             //this.imageWeather.Image = node7[0].GetAttributeValue("src", "");
-       
+
+            var imageURL = node7[0].GetAttributeValue("src", "");
+            var data = NSData.FromUrl(new NSUrl(imageURL));
+            var image = UIImage.LoadFromData(data);
+            this.imageWeather.Image = image;
+           
         }
 
         public override void ViewDidLoad()
@@ -105,5 +100,6 @@ namespace YahooWeather_iOS
             base.DidReceiveMemoryWarning();
             // Release any cached data, images, etc that aren't in use.
         }
+
     }
 }
